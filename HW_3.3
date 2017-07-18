@@ -1,1 +1,47 @@
 
+import requests
+
+
+api_key = 'trnsl.1.1.20161025T233221Z.47834a66fd7895d0.a95fd4bfde5c1794fa433453956bd261eae80152'
+url_translate = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
+url_detect = 'https://translate.yandex.net/api/v1.5/tr.json/detect'
+file = input()
+
+
+#чтение файла
+def get_text():
+    with open(file, 'r') as f:
+        text = f.read()
+    return text
+
+
+# определение языка
+def detect_lang(text=get_text()):
+    params = {
+        'key': api_key,
+        'text': text
+    }
+    response = requests.get(url_detect, params)
+    json_ = response.json()
+    return json_['lang']
+
+
+#перевод
+def translate_it(text, to_lang):
+    params = {
+        'key': api_key,
+        'text': text,
+        'lang': '{}-ru'.format(to_lang),
+    }
+
+    response = requests.get(url_translate, params=params)
+    json_ = response.json()
+    return ''.join(json_['text'])
+
+
+#создание файла с переводом
+def write_file():
+    with open('translation.txt', 'w') as f:
+        f.write(translate_it(get_text(),detect_lang()))
+
+write_file()
